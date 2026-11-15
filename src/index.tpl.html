@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo LoRa de emergencia · Sustentación</title>
+<style>/*FONTS*/</style>
+<style>/*CSS*/</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<svg id="leaders" aria-hidden="true"></svg>
+
+<header class="top">
+  <div class="top-l">Proyecto Integrador 2026-2 <span>·</span> Universidad Católica de Pereira</div>
+  <div class="top-r">
+    <button id="restore" type="button" hidden>Restaurar vista</button>
+    <button id="btnSound" type="button" aria-pressed="false">Sonido: no</button>
+    <button id="btnFull" type="button">Pantalla completa</button>
+    <span class="count"><b id="cur">01</b> / <span id="tot">15</span></span>
+  </div>
+</header>
+
+<main id="steps">
+
+<!-- 1 · PORTADA -->
+<section class="step s-cover" data-who="0">
+  <div class="blk bl">
+    <p class="kick" data-a>Sustentación · Prototipo funcional</p>
+    <h1 class="split">Emergencia sin red celular ni internet</h1>
+    <p class="lead" data-a>Prototipo de un sistema de transmisión y recepción de ondas electromagnéticas con tecnología LoRa para la comunicación de emergencia sin red celular ni internet.</p>
+    <dl class="meta" data-a>
+      <div><dt>Integrantes</dt><dd>John Alejandro Piedrahita<br>Daniel Felipe Colorado<br>Sebastián Patiño</dd></div>
+      <div><dt>Asignaturas</dt><dd>Telecomunicaciones I<br>Circuitos y Señales II</dd></div>
+      <div><dt>Docentes</dt><dd>Line Yasmin Becerra Sánchez<br>Eliana Yiceth Piedrahita E.</dd></div>
+      <div><dt>Programa</dt><dd>Ingeniería de Sistemas<br>y Telecomunicaciones</dd></div>
+    </dl>
+  </div>
+  <div class="tag" data-anchor="A.tip" data-side="l">Nodo A · Telecomunicaciones I</div>
+  <div class="tag" data-anchor="B.tip" data-side="r">Nodo B · Circuitos II</div>
+</section>
+
+<!-- 2 · CINEMÁTICA -->
+<section class="step s-cine" data-who="0">
+  <div class="cine-top" data-a><span class="cine-eyebrow">Por qué importa</span></div>
+  <div class="cine-lower">
+    <div class="cine-head"><b id="cineNum">01</b><i id="cineAct">Una tarde cualquiera</i></div>
+    <p id="cineCap">Dos casas, dos vecinos. La red celular funciona con normalidad.</p>
+  </div>
+  <div class="cine-ctrl">
+    <button id="cineReplay" type="button">↺ Repetir escena</button>
+    <span class="cine-hint">Escena cinematográfica · avanza con la flecha →</span>
+    <div class="cine-bar"><i id="cineProg"></i></div>
+  </div>
+</section>
+
+<!-- 3 · PROBLEMA -->
+<section class="step" data-who="0">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>El problema</p>
+    <h2 class="split">Cuando la red cae, el teléfono no sirve ni para decir «estoy bien»</h2>
+    <p data-a>En una emergencia la red celular falla por tres caminos distintos, y a veces por los tres a la vez.</p>
+    <p class="note" data-a>Las alternativas profesionales (radio troncalizado, enlaces satelitales) exigen presupuesto, licencias y operadores entrenados.</p>
+  </div>
+  <div class="tag big" data-anchor="city.t0" data-side="r"><b>Daño físico</b>Antenas y red fuera de servicio</div>
+  <div class="tag big" data-anchor="city.t1" data-side="r"><b>Sin energía</b>Sin electricidad, la estación se apaga</div>
+  <div class="tag big" data-anchor="city.t2" data-side="l"><b>Saturación</b>El pico de llamadas bloquea la celda</div>
+  <div class="tag big red" data-anchor="city.link" data-side="l"><b>Enlace propio</b>Dos nodos LoRa, sin infraestructura</div>
+</section>
+
+<!-- 4 · OBJETIVO -->
+<section class="step" data-who="0">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Objetivo</p>
+    <h2 class="split">Tres señales cerradas y una confirmación</h2>
+    <p data-a>Dos nodos que se comunican por radio LoRa sin depender de ninguna red. No hay texto libre: cada señal viaja en un paquete de pocos bytes y quien la envía sabe si llegó.</p>
+  </div>
+  <div class="signals bottom" data-a>
+    <article data-sig="OK"><i class="sw blue"></i><h3>OK</h3><p>Estoy bien</p><small>Pulsador azul · Morse <span class="mono">−−− −·−</span></small></article>
+    <article data-sig="CONSULTA"><i class="sw white"></i><h3>Consulta</h3><p>¿Estás bien?</p><small>Pulsador blanco · Morse <span class="mono">··−−··</span></small></article>
+    <article data-sig="SOS"><i class="sw red"></i><h3>SOS</h3><p>Necesito ayuda</p><small>Pulsador rojo · Morse <span class="mono">··· −−− ···</span></small></article>
+    <article class="ack"><h3>ACK</h3><p>Confirmación de recepción</p><small>El otro nodo responde solo. Sin ACK: hasta 3 intentos.</small></article>
+  </div>
+</section>
+
+<!-- 5 · BANDA / ESPECTRO -->
+<section class="step" data-who="0">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Telecomunicaciones · Espectro</p>
+    <h2 class="split">Una banda de uso libre: 915 MHz</h2>
+    <p data-a>Del <em>espectro electromagnético</em> elegimos una banda que cualquiera puede usar sin licencia. LoRa cambia velocidad por alcance: pocos bits por segundo, a cambio de kilómetros con milivatios.</p>
+    <p class="note" data-a>El anteproyecto partía de 433 MHz. Se descartó: el módulo previsto superaba el límite de potencia de uso libre en Colombia (ANE).</p>
+  </div>
+  <div class="tag big" data-anchor="sp.a433" data-side="l"><b>433 MHz</b>Descartada</div>
+  <div class="tag big blue" data-anchor="sp.a915" data-side="r"><b>915–928 MHz</b>Banda elegida · 10 dBm</div>
+  <div class="tag" data-anchor="sp.p0" data-side="r"><b>Bluetooth</b>≈ 10 m</div>
+  <div class="tag" data-anchor="sp.p1" data-side="r"><b>Wi-Fi</b>≈ 50 m</div>
+  <div class="tag red" data-anchor="sp.p2" data-side="r"><b>LoRa</b>kilómetros</div>
+</section>
+
+<!-- 6 · CIRCUITO (Circuitos y Señales II) -->
+<section class="step" data-who="1">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Circuitos y Señales II</p>
+    <h2 class="split">El circuito, por dentro</h2>
+    <p data-a>Así se conectan las piezas del nodo. Cada tema de la asignatura aparece en una parte real del montaje.</p>
+    <ul class="topics" data-a>
+      <li><b>Semiconductores</b> El ESP32, el LED y el transistor</li>
+      <li><b>Diodos</b> El LED: corriente en un solo sentido, y emite luz</li>
+      <li><b>Transistores</b> El 2N2222 enciende el zumbador</li>
+      <li><b>Amplificación</b> ~2,6 mA en la base controlan ~30 mA del zumbador</li>
+    </ul>
+  </div>
+  <div class="tag big" data-anchor="cir.esp" data-side="l"><b>ESP32-S3</b>controla todo (semiconductor)</div>
+  <div class="tag" data-anchor="cir.btn" data-side="l"><b>Pulsadores</b>a GND · pull-up interno</div>
+  <div class="tag" data-anchor="cir.oled" data-side="r"><b>OLED</b>I²C · estado y alertas</div>
+  <div class="tag red" data-anchor="cir.led" data-side="r"><b>LED + 220 Ω</b>diodo que avisa en luz</div>
+  <div class="tag blue" data-anchor="cir.tr" data-side="r"><b>2N2222</b>transistor interruptor</div>
+  <div class="tag" data-anchor="cir.buz" data-side="r"><b>Zumbador</b>avisa en sonido</div>
+</section>
+
+<!-- 7 · HARDWARE (pieza por pieza) -->
+<section class="step" data-who="1">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Hardware</p>
+    <h2 class="split">Un nodo, pieza por pieza</h2>
+    <p data-a>Los dos nodos son idénticos. Radio y pantalla vienen en la placa; lo demás se monta en una protoboard.</p>
+    <p class="note" data-a>Toca cada componente para ver su función y sus pines. Arrastra para girar la vista.</p>
+  </div>
+  <div class="tag big" data-anchor="A.p.heltec" data-side="l"><b>Heltec LoRa 32 V3</b>ESP32-S3 + radio SX1262</div>
+  <div class="tag big" data-anchor="A.p.oled" data-side="r"><b>OLED 128 × 64</b>estado y alertas</div>
+  <div class="tag big" data-anchor="A.tip" data-side="l"><b>Antena 915 MHz</b>siempre antes de energizar</div>
+  <div class="tag big" data-anchor="A.p.buttons" data-side="r"><b>Pulsadores</b>GPIO 7 · 6 · 5</div>
+  <div class="tag big" data-anchor="A.p.led" data-side="r"><b>LED</b>GPIO 4 + 220 Ω</div>
+  <div class="tag big" data-anchor="A.p.buzzer" data-side="l"><b>Zumbador + 2N2222</b>GPIO 3 → 1 kΩ</div>
+</section>
+
+<!-- 8 · MORSE -->
+<section class="step" data-who="1">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Circuito de avisos</p>
+    <h2 class="split">Luz y sonido al unísono, en Morse</h2>
+    <p data-a>El pin del ESP32 no da la corriente del zumbador (unos 30 mA); el transistor 2N2222 lo conmuta. El LED sigue exactamente el mismo patrón. Toca cada botón para oírlo.</p>
+  </div>
+  <div class="morse bottom" data-a>
+    <button type="button" data-m="SOS"><span class="nm">SOS</span><span class="pat"></span><span class="du"></span></button>
+    <button type="button" data-m="CONSULTA"><span class="nm">Consulta</span><span class="pat"></span><span class="du"></span></button>
+    <button type="button" data-m="OK"><span class="nm">OK</span><span class="pat"></span><span class="du"></span></button>
+  </div>
+</section>
+
+<!-- 9 · SEÑALES -->
+<section class="step" data-who="1">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Telecomunicaciones · Señales</p>
+    <h2 class="split">Qué viaja por el aire</h2>
+    <p data-a>Una señal de radio es una onda. Su <em>amplitud</em> es la fuerza, su <em>período</em> el tiempo de un ciclo y su <em>longitud de onda</em> la distancia entre crestas. Modular es escribir el dato cambiando alguna de ellas.</p>
+    <div class="seg wide" data-a id="waveSeg"><button class="on" data-w="anatomia">Anatomía</button><button data-w="modulacion">Modulación LoRa</button><button data-w="ruido">Señal y ruido</button></div>
+    <p class="note" data-a>LoRa modula en frecuencia: cada símbolo es un barrido. Por eso distingue la señal del ruido y llega lejos con poca potencia.</p>
+  </div>
+  <div class="tag" data-anchor="wave.amp" data-side="l"><b>Amplitud</b>fuerza de la onda</div>
+  <div class="tag" data-anchor="wave.period" data-side="r"><b>Período · λ</b>un ciclo completo</div>
+  <div class="tag" data-anchor="wave.lambda" data-side="r"><b>Propagación</b>la onda avanza</div>
+  <div class="tag blue" data-anchor="wave.carrier" data-side="l"><b>915 MHz</b>la portadora</div>
+</section>
+
+<!-- 10 · CHIRP (simplificado) -->
+<section class="step" data-who="1">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Por qué LoRa llega lejos</p>
+    <h2 class="split">Un barrido por cada símbolo</h2>
+    <p data-a>En vez de un tono fijo, LoRa manda un <em>barrido</em>: la frecuencia sube de abajo hacia arriba. Un barrido lento viaja más lejos pero tarda más; uno rápido es al revés.</p>
+    <div class="seg wide" data-a id="sfSeg"><span>Barrido</span><button data-sf="7">Rápido</button><button class="on" data-sf="9">Medio</button><button data-sf="12">Lento</button></div>
+  </div>
+  <dl class="read2 bottom" data-a>
+    <div><dt>Alcance</dt><dd id="rAlc">medio</dd></div>
+    <div><dt>Velocidad</dt><dd id="rVel">media</dd></div>
+    <div class="muted"><dt>Nuestro nodo</dt><dd>915 MHz · barrido medio (SF9) · 10 dBm</dd></div>
+  </dl>
+  <div class="tag" data-anchor="ch.aBW" data-side="l"><b>Ancho de banda</b>125 kHz</div>
+  <div class="tag" data-anchor="ch.aPre" data-side="r"><b>Preámbulo</b>barridos de aviso</div>
+</section>
+
+<!-- 11 · PROTOCOLO -->
+<section class="step" data-who="2">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Protocolo</p>
+    <h2 class="split">Un paquete, un ACK y hasta tres intentos</h2>
+    <p class="pkt" data-a><span>CSOS</span><span>origen</span><span>tipo</span><span>contador</span></p>
+    <p data-a>El receptor confirma de inmediato. Si no llega el ACK, se reenvía hasta tres veces. Pruébalo: pulsa un botón o sube la pérdida del canal.</p>
+  </div>
+  <div class="panel bottom" data-a>
+    <div class="row">
+      <div class="grp"><span class="lb">Nodo A</span><button class="b blue" data-send="A:OK">OK</button><button class="b white" data-send="A:CONSULTA">Consulta</button><button class="b red" data-send="A:SOS">SOS</button></div>
+      <div class="grp"><span class="lb">Nodo B</span><button class="b blue" data-send="B:OK">OK</button><button class="b white" data-send="B:CONSULTA">Consulta</button><button class="b red" data-send="B:SOS">SOS</button></div>
+      <div class="grp"><span class="lb">Pérdida del canal</span><div class="seg" id="lossSeg"><button>0 %</button><button class="on">30 %</button><button>60 %</button><button>100 %</button></div></div>
+      <div class="grp"><button class="b line" id="btnLose">Perder el próximo</button><button class="b line" id="btnAuto" aria-pressed="false">Demo automática</button></div>
+    </div>
+    <div class="row stats">
+      <div><b id="stSent">0</b><span>enviados</span></div>
+      <div><b id="stDel">0</b><span>entregados</span></div>
+      <div><b id="stRet">0</b><span>reintentos</span></div>
+      <div><b id="stFail">0</b><span>sin respuesta</span></div>
+      <div class="log" id="simLog">También puedes pulsar los botones de los nodos.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 · INTERFAZ -->
+<section class="step" data-who="2">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Interfaz</p>
+    <h2 class="split">La pantalla cuenta qué pasó</h2>
+    <p data-a>Cada estado del nodo se ve en la pantalla OLED: a quién se envía, si lo confirmaron y qué alerta llegó.</p>
+    <div class="states" data-a id="oledStates"></div>
+  </div>
+  <figure class="bigoled" data-a><canvas id="oledBig" width="512" height="256"></canvas><figcaption id="oledCap">Reposo</figcaption></figure>
+</section>
+
+<!-- 13 · ALCANCE -->
+<section class="step" data-who="2">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Alcance</p>
+    <h2 class="split">El entorno pesa más que la potencia</h2>
+    <p data-a>La misma potencia llega distinto según lo que haya en medio. Entre más muros y edificios, menos alcance. Mira cómo crece el círculo:</p>
+    <div class="seg wide" data-a id="envSeg"><button class="on">Interior</button><button>Urbano</button><button>Suburbano</button><button>Campo abierto</button></div>
+    <p class="bigval" data-a><span id="envDist">≈ 300 m</span></p>
+  </div>
+  <div class="tag" data-anchor="map.e0" data-side="r">interior</div>
+  <div class="tag" data-anchor="map.e1" data-side="r">urbano</div>
+  <div class="tag" data-anchor="map.e2" data-side="r">suburbano</div>
+  <div class="tag" data-anchor="map.e3" data-side="r">campo abierto</div>
+  <div class="tag big" data-anchor="map.A" data-side="l"><b>Nodo A</b></div>
+</section>
+
+<!-- 14 · RESULTADOS -->
+<section class="step" data-who="2">
+  <div class="blk tl narrow">
+    <p class="kick" data-a>Resultados</p>
+    <h2 class="split">Lo que el prototipo ya hace</h2>
+  </div>
+  <dl class="results bottom" data-a>
+    <div><dd><span data-count="2">0</span> de 2</dd><dt>nodos armados y funcionando, con pantalla, LED y zumbador</dt></div>
+    <div><dd>A ⇄ B</dd><dt>envía y confirma en ambos sentidos, con las tres señales</dt></div>
+    <div><dd>3 señales</dd><dt>OK, Consulta y SOS, cada una con su sonido Morse</dt></div>
+    <div><dd>ACK</dd><dt>reintentos automáticos si un mensaje no llega</dt></div>
+  </dl>
+</section>
+
+<!-- 15 · CONCLUSIONES -->
+<section class="step s-end" data-who="3">
+  <div class="blk tl">
+    <p class="kick" data-a>Conclusiones</p>
+    <h2 class="split">Lo que aprendimos, funcionando</h2>
+    <ol class="concl" data-a>
+      <li><span><b>De Circuitos y Señales II:</b> semiconductores, diodos y transistores dejaron de ser teoría — el LED y el 2N2222 hacen que el nodo avise con luz y sonido.</span></li>
+      <li><span><b>De Telecomunicaciones I:</b> una señal modulada en una banda de uso libre (915 MHz) viaja lejos con poca potencia y sin ninguna red.</span></li>
+      <li><span><b>Juntando ambas:</b> dos nodos de bajo costo logran un enlace propio con la certeza de que el mensaje llegó. A futuro: pruebas de campo y un tercer nodo repetidor.</span></li>
+    </ol>
+    <p class="thanks" data-a>Gracias. <span>John Alejandro Piedrahita · Daniel Felipe Colorado · Sebastián Patiño</span></p>
+  </div>
+</section>
+
+</main>
+
+<aside id="compCard" hidden>
+  <button id="compClose" type="button" aria-label="Cerrar">×</button>
+  <p class="cc-k">Componente</p>
+  <h4></h4>
+  <p class="cc-d"></p>
+  <p class="cc-calc"></p>
+</aside>
+
+<nav class="rail" aria-label="Secciones">
+  <button class="nav" id="prev" type="button" aria-label="Anterior">←</button>
+  <div class="segs" id="segs"></div>
+  <button class="nav" id="next" type="button" aria-label="Siguiente">→</button>
+</nav>
+<div id="nogl" hidden>Este navegador no pudo iniciar WebGL. El texto de la presentación sigue disponible con las flechas del teclado.</div>
+
+<script>/*DATA*/</script>
+<script>/*JS*/</script>
+</body>
+</html>

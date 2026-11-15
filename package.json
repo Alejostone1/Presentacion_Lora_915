@@ -1,0 +1,15 @@
+{
+  "name": "presentacion-lora-915",
+  "version": "1.0.0",
+  "description": "Sustentación 3D del prototipo LoRa de emergencia (UCP)",
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": {
+    "esbuild": "^0.21.0",
+    "three": "^0.170.0",
+    "gsap": "^3.12.0",
+    "@fontsource/barlow": "^5.0.0",
+    "@fontsource/barlow-condensed": "^5.0.0",
+    "@fontsource/ibm-plex-mono": "^5.0.0"
+  }
+}
