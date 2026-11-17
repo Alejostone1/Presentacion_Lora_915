@@ -9,6 +9,7 @@
 </head>
 <body>
 <canvas id="gl"></canvas>
+<div class="stage-frame" aria-hidden="true"></div>
 <svg id="leaders" aria-hidden="true"></svg>
 
 <header class="top">
@@ -59,8 +60,8 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>El problema</p>
     <h2 class="split">Cuando la red cae, el teléfono no sirve ni para decir «estoy bien»</h2>
-    <p data-a>En una emergencia la red celular falla por tres caminos distintos, y a veces por los tres a la vez.</p>
-    <p class="note" data-a>Las alternativas profesionales (radio troncalizado, enlaces satelitales) exigen presupuesto, licencias y operadores entrenados.</p>
+    <p data-a>La red celular falla por tres caminos distintos, y a veces por los tres a la vez.</p>
+    <p class="note" data-a>Las alternativas profesionales exigen presupuesto, licencias y operadores entrenados.</p>
   </div>
   <div class="tag big" data-anchor="city.t0" data-side="r"><b>Daño físico</b>Antenas y red fuera de servicio</div>
   <div class="tag big" data-anchor="city.t1" data-side="r"><b>Sin energía</b>Sin electricidad, la estación se apaga</div>
@@ -73,13 +74,13 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Objetivo</p>
     <h2 class="split">Tres señales cerradas y una confirmación</h2>
-    <p data-a>Dos nodos que se comunican por radio LoRa sin depender de ninguna red. No hay texto libre: cada señal viaja en un paquete de pocos bytes y quien la envía sabe si llegó.</p>
+    <p data-a>Dos nodos LoRa que se comunican sin ninguna red. Cada señal es un paquete de pocos bytes y quien la envía sabe si llegó.</p>
   </div>
   <div class="signals bottom" data-a>
-    <article data-sig="OK"><i class="sw blue"></i><h3>OK</h3><p>Estoy bien</p><small>Pulsador azul · Morse <span class="mono">−−− −·−</span></small></article>
-    <article data-sig="CONSULTA"><i class="sw white"></i><h3>Consulta</h3><p>¿Estás bien?</p><small>Pulsador blanco · Morse <span class="mono">··−−··</span></small></article>
-    <article data-sig="SOS"><i class="sw red"></i><h3>SOS</h3><p>Necesito ayuda</p><small>Pulsador rojo · Morse <span class="mono">··· −−− ···</span></small></article>
-    <article class="ack"><h3>ACK</h3><p>Confirmación de recepción</p><small>El otro nodo responde solo. Sin ACK: hasta 3 intentos.</small></article>
+    <article data-sig="OK"><i class="sw blue"></i><h3>OK</h3><p>Estoy bien</p><small>Pulsador azul · <span class="mono">−−− −·−</span></small></article>
+    <article data-sig="CONSULTA"><i class="sw white"></i><h3>Consulta</h3><p>¿Estás bien?</p><small>Pulsador blanco · <span class="mono">··−−··</span></small></article>
+    <article data-sig="SOS"><i class="sw red"></i><h3>SOS</h3><p>Necesito ayuda</p><small>Pulsador rojo · <span class="mono">··· −−− ···</span></small></article>
+    <article class="ack"><h3>ACK</h3><p>Confirmación de recepción</p><small>Sin ACK, reintenta hasta 3 veces.</small></article>
   </div>
 </section>
 
@@ -88,8 +89,8 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Telecomunicaciones · Espectro</p>
     <h2 class="split">Una banda de uso libre: 915 MHz</h2>
-    <p data-a>Del <em>espectro electromagnético</em> elegimos una banda que cualquiera puede usar sin licencia. LoRa cambia velocidad por alcance: pocos bits por segundo, a cambio de kilómetros con milivatios.</p>
-    <p class="note" data-a>El anteproyecto partía de 433 MHz. Se descartó: el módulo previsto superaba el límite de potencia de uso libre en Colombia (ANE).</p>
+    <p data-a>Del <em>espectro electromagnético</em> elegimos una banda de uso libre. LoRa cambia velocidad por alcance: pocos bits por segundo, a cambio de kilómetros con milivatios.</p>
+    <p class="note" data-a>433 MHz se descartó: el módulo previsto superaba el límite de potencia de uso libre en Colombia (ANE).</p>
   </div>
   <div class="tag big" data-anchor="sp.a433" data-side="l"><b>433 MHz</b>Descartada</div>
   <div class="tag big blue" data-anchor="sp.a915" data-side="r"><b>915–928 MHz</b>Banda elegida · 10 dBm</div>
@@ -103,12 +104,12 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Circuitos y Señales II</p>
     <h2 class="split">El circuito, por dentro</h2>
-    <p data-a>Así se conectan las piezas del nodo. Cada tema de la asignatura aparece en una parte real del montaje.</p>
+    <p data-a>Así se conectan las piezas del nodo. Cada tema de clase aparece en una parte real.</p>
     <ul class="topics" data-a>
       <li><b>Semiconductores</b> El ESP32, el LED y el transistor</li>
-      <li><b>Diodos</b> El LED: corriente en un solo sentido, y emite luz</li>
+      <li><b>Diodos</b> El LED: un solo sentido, y emite luz</li>
       <li><b>Transistores</b> El 2N2222 enciende el zumbador</li>
-      <li><b>Amplificación</b> ~2,6 mA en la base controlan ~30 mA del zumbador</li>
+      <li><b>Amplificación</b> ~2,6 mA en la base controlan ~30 mA</li>
     </ul>
   </div>
   <div class="tag big" data-anchor="cir.esp" data-side="l"><b>ESP32-S3</b>controla todo (semiconductor)</div>
@@ -124,8 +125,8 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Hardware</p>
     <h2 class="split">Un nodo, pieza por pieza</h2>
-    <p data-a>Los dos nodos son idénticos. Radio y pantalla vienen en la placa; lo demás se monta en una protoboard.</p>
-    <p class="note" data-a>Toca cada componente para ver su función y sus pines. Arrastra para girar la vista.</p>
+    <p data-a>Los dos nodos son idénticos. Radio y pantalla vienen en la placa; lo demás va en una protoboard.</p>
+    <p class="note" data-a>Toca un componente para ver su función. Arrastra para girar.</p>
   </div>
   <div class="tag big" data-anchor="A.p.heltec" data-side="l"><b>Heltec LoRa 32 V3</b>ESP32-S3 + radio SX1262</div>
   <div class="tag big" data-anchor="A.p.oled" data-side="r"><b>OLED 128 × 64</b>estado y alertas</div>
@@ -140,7 +141,7 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Circuito de avisos</p>
     <h2 class="split">Luz y sonido al unísono, en Morse</h2>
-    <p data-a>El pin del ESP32 no da la corriente del zumbador (unos 30 mA); el transistor 2N2222 lo conmuta. El LED sigue exactamente el mismo patrón. Toca cada botón para oírlo.</p>
+    <p data-a>El pin del ESP32 no da la corriente del zumbador (~30 mA): el transistor 2N2222 lo conmuta. El LED sigue el mismo patrón. Toca un botón.</p>
   </div>
   <div class="morse bottom" data-a>
     <button type="button" data-m="SOS"><span class="nm">SOS</span><span class="pat"></span><span class="du"></span></button>
@@ -154,9 +155,9 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Telecomunicaciones · Señales</p>
     <h2 class="split">Qué viaja por el aire</h2>
-    <p data-a>Una señal de radio es una onda. Su <em>amplitud</em> es la fuerza, su <em>período</em> el tiempo de un ciclo y su <em>longitud de onda</em> la distancia entre crestas. Modular es escribir el dato cambiando alguna de ellas.</p>
+    <p data-a>Una señal de radio es una onda: la <em>amplitud</em> es su fuerza, el <em>período</em> el tiempo de un ciclo y la <em>longitud de onda</em> la distancia entre crestas.</p>
     <div class="seg wide" data-a id="waveSeg"><button class="on" data-w="anatomia">Anatomía</button><button data-w="modulacion">Modulación LoRa</button><button data-w="ruido">Señal y ruido</button></div>
-    <p class="note" data-a>LoRa modula en frecuencia: cada símbolo es un barrido. Por eso distingue la señal del ruido y llega lejos con poca potencia.</p>
+    <p class="note" data-a>Modular es escribir el dato cambiando una de ellas. LoRa lo hace en frecuencia, y así distingue la señal del ruido.</p>
   </div>
   <div class="tag" data-anchor="wave.amp" data-side="l"><b>Amplitud</b>fuerza de la onda</div>
   <div class="tag" data-anchor="wave.period" data-side="r"><b>Período · λ</b>un ciclo completo</div>
@@ -169,7 +170,7 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Por qué LoRa llega lejos</p>
     <h2 class="split">Un barrido por cada símbolo</h2>
-    <p data-a>En vez de un tono fijo, LoRa manda un <em>barrido</em>: la frecuencia sube de abajo hacia arriba. Un barrido lento viaja más lejos pero tarda más; uno rápido es al revés.</p>
+    <p data-a>LoRa no manda un tono fijo: manda un <em>barrido</em>, una frecuencia que sube. Lento: llega más lejos, tarda más. Rápido: al revés.</p>
     <div class="seg wide" data-a id="sfSeg"><span>Barrido</span><button data-sf="7">Rápido</button><button class="on" data-sf="9">Medio</button><button data-sf="12">Lento</button></div>
   </div>
   <dl class="read2 bottom" data-a>
@@ -185,9 +186,9 @@
 <section class="step" data-who="2">
   <div class="blk tl narrow">
     <p class="kick" data-a>Protocolo</p>
-    <h2 class="split">Un paquete, un ACK y hasta tres intentos</h2>
+    <h2 class="split">Paquete, ACK y tres intentos</h2>
     <p class="pkt" data-a><span>CSOS</span><span>origen</span><span>tipo</span><span>contador</span></p>
-    <p data-a>El receptor confirma de inmediato. Si no llega el ACK, se reenvía hasta tres veces. Pruébalo: pulsa un botón o sube la pérdida del canal.</p>
+    <p data-a>El receptor confirma con un ACK. Sin ACK, se reenvía hasta 3 veces. Pruébalo con los botones.</p>
   </div>
   <div class="panel bottom" data-a>
     <div class="row">
@@ -211,7 +212,7 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Interfaz</p>
     <h2 class="split">La pantalla cuenta qué pasó</h2>
-    <p data-a>Cada estado del nodo se ve en la pantalla OLED: a quién se envía, si lo confirmaron y qué alerta llegó.</p>
+    <p data-a>Cada estado del nodo se ve en la OLED: qué se envía, si lo confirmaron y qué alerta llegó.</p>
     <div class="states" data-a id="oledStates"></div>
   </div>
   <figure class="bigoled" data-a><canvas id="oledBig" width="512" height="256"></canvas><figcaption id="oledCap">Reposo</figcaption></figure>
@@ -222,7 +223,7 @@
   <div class="blk tl narrow">
     <p class="kick" data-a>Alcance</p>
     <h2 class="split">El entorno pesa más que la potencia</h2>
-    <p data-a>La misma potencia llega distinto según lo que haya en medio. Entre más muros y edificios, menos alcance. Mira cómo crece el círculo:</p>
+    <p data-a>La misma potencia llega distinto según lo que haya en medio: más muros, menos alcance.</p>
     <div class="seg wide" data-a id="envSeg"><button class="on">Interior</button><button>Urbano</button><button>Suburbano</button><button>Campo abierto</button></div>
     <p class="bigval" data-a><span id="envDist">≈ 300 m</span></p>
   </div>
@@ -253,9 +254,9 @@
     <p class="kick" data-a>Conclusiones</p>
     <h2 class="split">Lo que aprendimos, funcionando</h2>
     <ol class="concl" data-a>
-      <li><span><b>De Circuitos y Señales II:</b> semiconductores, diodos y transistores dejaron de ser teoría — el LED y el 2N2222 hacen que el nodo avise con luz y sonido.</span></li>
-      <li><span><b>De Telecomunicaciones I:</b> una señal modulada en una banda de uso libre (915 MHz) viaja lejos con poca potencia y sin ninguna red.</span></li>
-      <li><span><b>Juntando ambas:</b> dos nodos de bajo costo logran un enlace propio con la certeza de que el mensaje llegó. A futuro: pruebas de campo y un tercer nodo repetidor.</span></li>
+      <li><span><b>Circuitos y Señales II:</b> semiconductores, diodos y transistores, funcionando en el LED y el 2N2222 del nodo.</span></li>
+      <li><span><b>Telecomunicaciones I:</b> una señal modulada en una banda libre (915 MHz) llega lejos, con poca potencia y sin red.</span></li>
+      <li><span><b>Juntas:</b> dos nodos de bajo costo y la certeza de que el mensaje llegó.</span></li>
     </ol>
     <p class="thanks" data-a>Gracias. <span>John Alejandro Piedrahita · Daniel Felipe Colorado · Sebastián Patiño</span></p>
   </div>

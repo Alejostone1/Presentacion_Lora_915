@@ -16,7 +16,9 @@ let renderer;
 try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); }
 catch (e) { $('#nogl').hidden = false; }
 const scene = new THREE.Scene(); scene.background = new THREE.Color(C.paper); scene.fog = new THREE.Fog(C.paper, 120, 210);
-const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.5, 900);
+const camera = new THREE.PerspectiveCamera(32, 1.7, 0.5, 900);
+const view = { x: 0, y: 0, w: innerWidth, h: innerHeight, G: 140 };   // escenario 3D (zona derecha)
+let zs = 1, offs = 0;                                                          // zoom suavizado (deja los márgenes para etiquetas)
 if (renderer) {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -82,7 +84,7 @@ const imgs = {};
 function loadImg(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; }); }
 
 let sim;
-const cam = { px: 0, py: 14, pz: 44, tx: 0, ty: 3, tz: 0, orbit: 0, sx: 0.18, sy: 0 };
+const cam = { px: 0, py: 14, pz: 44, tx: 0, ty: 3, tz: 0, orbit: 0, z: 1 };
 const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
 let dragA = 0, dragEl = 0;                    // órbita manual (arrastre) acumulada
 const tmpV = new THREE.Vector3();
@@ -212,20 +214,20 @@ const IDX = {}; STEP_KEYS.forEach((k, i) => IDX[k] = i);
 // ---- definición de pasos
 const steps = [
   { // 1 portada
-    cam: at(30, 18, 30, 2, 2, 0, 'desk'), sx: 0.09, sy: -0.08,
+    cam: at(30, 18, 30, 2, 2, 0, 'desk'), z: 1.4,
     enter() { startAmbient(6); },
   },
   { // 2 CINEMÁTICA del terremoto
-    cam: { px: VX + 2, py: 9.5, pz: VZ + 24, tx: VX - 1, ty: 3.4, tz: VZ + 3 }, sx: 0, sy: 0, cine: true,
+    cam: { px: VX, py: 14, pz: VZ + 34, tx: VX, ty: 3, tz: VZ + 1 }, z: 1, cine: true,
     enter(el) { playEarthquake(el); },
     leave() { endEarthquake(); },
   },
   { // 3 problema
-    cam: at(30, 40, 88, 6, 2, -2, 'city'), sx: 0.24, sy: 0.2, tagsManual: true,
+    cam: at(30, 40, 88, 6, 2, -2, 'city'), tagsManual: true, z: 1.35,
     enter(el) { loopTl(cityShow(el)); }, leave() { resetCity(); },
   },
   { // 4 objetivo
-    cam: at(-2, 9, 19, -8.6, 1.5, 0.6, 'desk'), sx: 0.3, sy: -0.16,
+    cam: at(-2, 9, 19, -8.6, 1.5, 0.6, 'desk'), z: 0.8, solo: true,
     enter() {
       sim.reset(); const tips = ['OK', 'CONSULTA', 'SOS']; let i = 0;
       every(1.7, () => {
@@ -237,7 +239,7 @@ const steps = [
     leave() { $$('.signals article').forEach(a => a.classList.remove('hit')); },
   },
   { // 5 banda / espectro
-    cam: at(0, 17, 70, 0, 4, -3, 'spec'), sx: 0.15, sy: 0.12,
+    cam: at(0, 17, 70, 0, 4, -3, 'spec'), z: 1.45,
     enter() {
       const u = spec.userData; const tl = gsap.timeline({ delay: 0.5 });
       tl.to(u.b433.scale, { y: 1, duration: 0.7, ease: 'power3.out' }).to(u.b433.position, { y: 2.1, duration: 0.7, ease: 'power3.out' }, '<')
@@ -249,32 +251,32 @@ const steps = [
     leave() { const u = spec.userData; u.b433.scale.y = 0.001; u.b433.position.y = 0.5; u.b915.scale.y = 0.001; u.b915.position.y = 0.5; u.cross.scale.setScalar(0.001); u.pillars.forEach(p => p.p.scale.y = 0.001); },
   },
   { // 6 circuito (esquema + temas de clase)
-    cam: { px: P.circuit[0] + 1, py: 20, pz: P.circuit[2] + 33, tx: P.circuit[0], ty: 0.5, tz: P.circuit[2] + 1 }, sx: 0.14, sy: 0.1, orbit: 0.05,
+    cam: { px: P.circuit[0] + 1, py: 20, pz: P.circuit[2] + 33, tx: P.circuit[0], ty: 0.5, tz: P.circuit[2] + 1 }, orbit: 0.05, z: 0.84,
     enter() { circuit.userData.start(); }, leave() { circuit.userData.stop(); },
   },
   { // 7 hardware — centrado
-    cam: at(-4, 15, 35, -10.6, 4.4, 0, 'desk'), orbit: 0.14, sx: 0, sy: 0.06,
+    cam: at(-4, 15, 35, -10.6, 4.4, 0, 'desk'), orbit: 0.14, z: 1.15, solo: true,
     enter() { sim.reset(); explodeNode(nodes.A, 1.15); }, leave() { explodeNode(nodes.A, 0, 0.9); },
   },
   { // 8 morse
-    cam: at(-5, 9, 24, -10.6, 1.6, 0, 'desk'), sx: 0, sy: -0.04,
+    cam: at(-5, 9, 24, -10.6, 1.6, 0, 'desk'), z: 0.82, solo: true,
     enter() { sim.reset(); loops.push(gsap.delayedCall(1.3, () => playMorseDom('SOS'))); },
     leave() { morseRun.forEach(t => t.kill()); sim.reset(); },
   },
   { // 9 señal (anatomía de la onda)
-    cam: { px: P.wave[0] + 2, py: 11, pz: P.wave[2] + 40, tx: P.wave[0], ty: 5, tz: P.wave[2] }, sx: 0.12, sy: 0.08,
+    cam: { px: P.wave[0] + 2, py: 11, pz: P.wave[2] + 40, tx: P.wave[0], ty: 5, tz: P.wave[2] }, z: 0.62,
     enter() { setWaveMode(waveMode); },
     leave() { wave.userData.stop(); },
   },
   { // 10 chirp (simplificado)
-    cam: at(5, 13, 59, 0, 5, 0, 'chirp'), sx: 0.21, sy: -0.07,
+    cam: at(5, 13, 59, 0, 5, 0, 'chirp'), z: 1.7,
     enter() {
       setSF(9); const u = chirp.userData;
       chirpHead = gsap.fromTo(u.head.position, { x: -u.W / 2 }, { x: u.W / 2, duration: 3.2, repeat: -1, ease: 'none', delay: 1 }); loopTl(chirpHead);
     },
   },
   { // 11 protocolo
-    cam: at(0, 10, 56, 0, 4.4, 0, 'desk'), sx: 0.1, sy: -0.03,
+    cam: at(0, 10, 56, 0, 4.4, 0, 'desk'), z: 1.1,
     enter() {
       sim.reset(); sim.zero(); setLoss(1); setAuto(false);
       loops.push(gsap.delayedCall(1.5, () => sim.send('A', 'SOS')));
@@ -282,11 +284,11 @@ const steps = [
     leave() { setAuto(false); sim.reset(); },
   },
   { // 12 interfaz
-    cam: at(30, 14, 30, 6, 2, 0, 'desk'), sx: -0.2, sy: 0.27,
+    cam: at(30, 14, 30, 6, 2, 0, 'desk'), z: 1.0, empty: true,
     enter() { sim.reset(); showAuto = true; showState(1); }, leave() { showAuto = false; },
   },
   { // 13 alcance — con movimiento
-    cam: at(2, 48, 58, 0, 0, 0, 'map'), sx: 0.16, sy: 0.04, orbit: 0.16,
+    cam: at(2, 48, 58, 0, 0, 0, 'map'), orbit: 0.16, z: 0.88,
     enter() {
       const u = map.userData;
       u.envs.forEach((e, i) => gsap.fromTo(e.ring.scale, { x: 0.001, y: 0.001, z: 0.001 }, { x: 1, y: 1, z: 1, duration: 1.2, delay: 0.5 + i * 0.18, ease: 'power3.out' }));
@@ -297,14 +299,14 @@ const steps = [
     leave() { envManual = false; gsap.to(map.userData.nA.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.3 }); },
   },
   { // 14 resultados
-    cam: at(30, 18, 32, 2, 2, 0, 'desk'), sx: 0.24, sy: 0.02,
+    cam: at(30, 18, 32, 2, 2, 0, 'desk'), z: 1.0,
     enter(el) {
       startAmbient(5);
       $$('[data-count]', el).forEach((n, i) => { const o = { v: 0 }, d = +(n.dataset.dec || 0); gsap.to(o, { v: +n.dataset.count, duration: 1.6, delay: 0.5 + i * 0.12, ease: 'power2.out', onUpdate: () => n.textContent = fmt(o.v, d) }); });
     },
   },
   { // 15 conclusiones
-    cam: at(30, 18, 34, 2, 2, 0, 'desk'), orbit: 0.05, sx: 0.47, sy: 0.2,
+    cam: at(30, 18, 34, 2, 2, 0, 'desk'), orbit: 0.05, z: 1.0,
     enter() { startAmbient(5); },
   },
 ];
@@ -350,18 +352,19 @@ function playEarthquake(el) {
   resetVillage();
   const cineCam = (tl, o, at0, dur, ease = 'power2.inOut') => tl.to(cam, { ...o, duration: dur, ease }, at0);
   const POS = {
-    est1:     { px: VX + 1,   py: 8,   pz: VZ + 19,  tx: VX,       ty: 3.2, tz: VZ + 1 },
-    chAsweep: { px: VX - 1.6, py: 5,   pz: VZ + 10.5, tx: VX - 4.6, ty: 3.4, tz: VZ + 4 },
-    quake:    { px: VX + 1,   py: 7,   pz: VZ + 16,  tx: VX,       ty: 3,   tz: VZ + 1 },
-    houseA:   { px: VX - 5,   py: 7.5, pz: VZ + 11,  tx: VX - 9,   ty: 4.5, tz: VZ + 3 },
-    crouch:   { px: VX - 1.8, py: 4.4, pz: VZ + 9,   tx: VX - 4.6, ty: 2.2, tz: VZ + 4 },
-    phone:    { px: VX - 2.2, py: 5,   pz: VZ + 8.6, tx: VX - 4.6, ty: 4,   tz: VZ + 4 },
-    nodeA:    { px: VX - 2.6, py: 4,   pz: VZ + 5,   tx: VX - 4.9, ty: 2.6, tz: VZ + 1.4 },
-    linkUp:   { px: VX,       py: 9.5, pz: VZ + 18,  tx: VX,       ty: 4.5, tz: VZ },
-    nodeB:    { px: VX + 3,   py: 4.2, pz: VZ - 5.4, tx: VX + 4.9, ty: 2.6, tz: VZ - 1.4 },
-    chBreact: { px: VX + 4.5, py: 5.6, pz: VZ - 11,  tx: VX + 4.4, ty: 3.8, tz: VZ - 4.4 },
-    final:    { px: VX - 1.5, py: 8.5, pz: VZ + 19,  tx: VX,       ty: 4.2, tz: VZ },
+    est1:     { px: VX,       py: 14,  pz: VZ + 34,  tx: VX,       ty: 3,   tz: VZ + 1 },
+    chAsweep: { px: VX - 3,   py: 7,   pz: VZ + 18,  tx: VX - 4.6, ty: 3.2, tz: VZ + 3 },
+    quake:    { px: VX,       py: 12,  pz: VZ + 29,  tx: VX,       ty: 3.5, tz: VZ },
+    houseA:   { px: VX - 6,   py: 9,   pz: VZ + 23,  tx: VX - 8,   ty: 4,   tz: VZ + 2 },
+    crouch:   { px: VX - 2.5, py: 7,   pz: VZ + 19,  tx: VX - 4.6, ty: 2.5, tz: VZ + 3.5 },
+    phone:    { px: VX - 3,   py: 7,   pz: VZ + 18,  tx: VX - 4.6, ty: 3.5, tz: VZ + 3.5 },
+    nodeA:    { px: VX - 2,   py: 6,   pz: VZ + 13.5,  tx: VX - 4.9, ty: 2.6, tz: VZ + 1.6 },
+    linkUp:   { px: VX,       py: 12,  pz: VZ + 29,  tx: VX,       ty: 4.5, tz: VZ },
+    nodeB:    { px: VX + 8,   py: 6,   pz: VZ + 10,  tx: VX + 4.9, ty: 2.8, tz: VZ - 1.2 },
+    chBreact: { px: VX + 8,   py: 7,   pz: VZ + 14,  tx: VX + 4.5, ty: 3.6, tz: VZ - 4 },
+    final:    { px: VX,       py: 12,  pz: VZ + 31,  tx: VX,       ty: 4,   tz: VZ },
   };
+
   Object.assign(cam, POS.est1);
   const tl = gsap.timeline({ onComplete: () => { $('#cineReplay').classList.add('show'); } });
   cineTl = tl;
@@ -486,6 +489,7 @@ function go(i, instant) {
   i = Math.max(0, Math.min(steps.length - 1, i));
   if (i === cur) return;
   const prev = cur; cur = i;
+  scene.visible = true;
   // salir
   loops.forEach(l => l.kill && l.kill()); loops = [];
   if (stepTl) stepTl.kill();
@@ -499,13 +503,14 @@ function go(i, instant) {
   const dur = instant || reduce ? 0 : far > 60 ? 2.1 : 1.5;
   gsap.killTweensOf(cam);
   const lift = { k: 0 }; cam.lift = 0;
-  gsap.to(cam, { ...st.cam, sx: st.sx ?? 0.18, sy: st.sy ?? 0, orbit: 0, duration: dur, ease: 'power3.inOut' });
+  gsap.to(cam, { ...st.cam, z: st.z ?? 1, orbit: 0, duration: dur, ease: 'power3.inOut' });
   if (far > 60 && dur) gsap.to(lift, { k: 1, duration: dur, ease: 'none', onUpdate: () => cam.lift = Math.sin(Math.PI * lift.k) * 26, onComplete: () => cam.lift = 0 });
   cam.orbitSpeed = st.orbit || 0; cam.cine = !!st.cine; cam.shake = 0; dragA = 0; dragEl = 0;
   deselectComp(); $('#restore').hidden = true;
   moving = true;
   gsap.delayedCall(dur * 0.55, () => {
     if (cur !== i) return;
+    nodes.B.visible = !st.solo; scene.visible = !st.empty;
     const el = stepEls[i]; el.classList.add('on');
     gsap.set($$('.tag', el), { opacity: 0 });
     st.enter && st.enter(el);
@@ -539,7 +544,7 @@ addEventListener('pointermove', e => { pointer.x = e.clientX / innerWidth * 2 - 
 const ray = new THREE.Raycaster();
 const compCard = $('#compCard'), restoreBtn = $('#restore');
 let selected = null, selBase = null, dragging = false, dsx = 0, dsy = 0, dMoved = 0;
-const ndc = e => new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight * 2 - 1));
+const ndc = e => new THREE.Vector2((e.clientX - view.x) / view.w * 2 - 1, -((e.clientY - view.y) / view.h * 2 - 1));
 function showRestore() { restoreBtn.hidden = false; }
 function hideRestore() { if (!selected && !dragA && !dragEl) restoreBtn.hidden = true; }
 function selectComp(o) {
@@ -587,7 +592,7 @@ canvas.addEventListener('dblclick', resetView);
 const tagsOf = stepEls.map(el => $$('.tag', el).map(t => ({ el: t, a: anchors[t.dataset.anchor], side: t.dataset.side, color: t.classList.contains('red') ? 'l-red' : t.classList.contains('blue') ? 'l-blue' : '' })));
 const leaderSvg = $('#leaders'); const SVGNS = 'http://www.w3.org/2000/svg'; const leaderPool = [];
 function leader(i) { if (leaderPool[i]) return leaderPool[i]; const ln = document.createElementNS(SVGNS, 'line'); const ci = document.createElementNS(SVGNS, 'circle'); ci.setAttribute('r', '3'); leaderSvg.append(ln, ci); const o = { ln, ci }; leaderPool[i] = o; return o; }
-function padPx() { return Math.max(18, Math.min(56, innerWidth * 0.032)); }
+const TPAD = 12;
 const clock = new THREE.Clock(); let orbitA = 0;
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
@@ -602,7 +607,11 @@ function frame() {
     cam.py + (cam.lift || 0) + (pointer.sy * 0.9 + Math.sin(t * 0.33) * 0.12) * pf + (Math.random() - 0.5) * sh * 0.8 + (dragEl || 0),
     cam.tz + ox * sa + oz * ca + (Math.random() - 0.5) * sh);
   camera.lookAt(cam.tx + (Math.random() - 0.5) * sh * 0.4, cam.ty + (Math.random() - 0.5) * sh * 0.4, cam.tz);
-  camera.setViewOffset(innerWidth, innerHeight, -cam.sx * innerWidth, -cam.sy * innerHeight, innerWidth, innerHeight);
+  // zona útil del escenario: se reserva margen solo en los lados que tienen etiquetas
+  let wantZ = 1, wantO = 0;
+  if (cur >= 0 && view.w >= 640) { const L = tagsOf[cur].some(t => t.side === 'l'), R = tagsOf[cur].some(t => t.side === 'r'); const xl = L ? view.G : 12, xr = view.w - (R ? view.G : 12); if (L || R) { wantZ = (xr - xl) / view.w; wantO = (xl + xr) / 2 - view.w / 2; } }
+  const kk = Math.min(1, dt * 5); zs += (wantZ - zs) * kk; offs += (wantO - offs) * kk;
+  camera.zoom = zs * (cam.z || 1); camera.setViewOffset(view.w, view.h, -offs, 0, view.w, view.h);
   sun.position.set(cam.tx + 16, 44, cam.tz + 22); sun.target.position.set(cam.tx, 0, cam.tz);
 
   if (sim) {
@@ -621,13 +630,13 @@ function frame() {
   // etiquetas: el TEXTO vive en los márgenes (nunca sobre el 3D) y una línea guía lo une al punto 3D
   let used = 0;
   if (cur >= 0 && stepEls[cur].classList.contains('on')) {
-    const PAD = padPx(), W = innerWidth, topMin = Math.max(64, innerHeight * 0.1), botMax = innerHeight - 128;
+    const PAD = TPAD, W = innerWidth, topMin = view.y + 22, botMax = view.y + view.h - 22, gw = view.G - PAD - 8, showTags = view.w >= 640;
     const arr = [];
     for (const tg of tagsOf[cur]) {
       if (!tg.a) continue;
       tg.a.getWorldPosition(tmpV).project(camera);
-      const vis = tmpV.z < 1 && tmpV.x > -1.6 && tmpV.x < 1.6;
-      const ax = (tmpV.x * 0.5 + 0.5) * W, ay = (-tmpV.y * 0.5 + 0.5) * innerHeight;
+      const vis = showTags && tmpV.z < 1 && tmpV.x > -1.15 && tmpV.x < 1.15;
+      const ax = view.x + (tmpV.x * 0.5 + 0.5) * view.w, ay = view.y + (-tmpV.y * 0.5 + 0.5) * view.h;
       arr.push({ tg, ax, ay: Math.max(topMin, Math.min(botMax, ay)), side: tg.side, vis });
     }
     // de-colisión vertical por margen
@@ -644,13 +653,14 @@ function frame() {
       el.style.display = o.vis ? '' : 'none';
       if (!o.vis) continue;
       const cy = o.cy != null ? o.cy : o.ay;
-      el.style.top = cy + 'px';
-      if (o.side === 'l') { el.style.left = PAD + 'px'; el.style.right = 'auto'; } else { el.style.right = PAD + 'px'; el.style.left = 'auto'; }
+      el.style.top = cy + 'px'; el.style.maxWidth = gw + 'px';
+      if (o.side === 'l') { el.style.left = (view.x + PAD) + 'px'; el.style.right = 'auto'; } else { el.style.right = (W - view.x - view.w + PAD) + 'px'; el.style.left = 'auto'; }
       const w = el.offsetWidth;
-      const lx = o.side === 'l' ? PAD + w + 6 : W - PAD - w - 6;      // borde interior del texto
+      const lx = o.side === 'l' ? view.x + PAD + w + 6 : view.x + view.w - PAD - w - 6;      // borde interior del texto
       const ld = leader(used++);
       ld.ln.setAttribute('x1', lx); ld.ln.setAttribute('y1', cy); ld.ln.setAttribute('x2', o.ax); ld.ln.setAttribute('y2', o.ay);
       ld.ci.setAttribute('cx', o.ax); ld.ci.setAttribute('cy', o.ay);
+      if (o.ax < view.x || o.ax > view.x + view.w) { el.style.display = 'none'; used--; continue; }
       const cls = tg.color; ld.ln.setAttribute('class', cls); ld.ci.setAttribute('class', cls);
       ld.ln.style.display = ''; ld.ci.style.display = '';
       ld.ln.style.opacity = el.style.opacity || getComputedStyle(el).opacity;
@@ -660,7 +670,14 @@ function frame() {
   for (let i = used; i < leaderPool.length; i++) { leaderPool[i].ln.style.display = 'none'; leaderPool[i].ci.style.display = 'none'; }
   requestAnimationFrame(frame);
 }
-function resize() { camera.aspect = innerWidth / innerHeight; camera.fov = innerWidth / innerHeight < 1 ? 52 : innerWidth / innerHeight < 1.5 ? 40 : 32; camera.updateProjectionMatrix(); renderer && renderer.setSize(innerWidth, innerHeight, false); leaderSvg.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`); leaderSvg.setAttribute('width', innerWidth); leaderSvg.setAttribute('height', innerHeight); }
+function resize() {
+  const r = canvas.getBoundingClientRect(); view.x = r.left; view.y = r.top; view.w = Math.max(200, r.width); view.h = Math.max(200, r.height);
+  view.G = Math.max(112, Math.min(200, view.w * 0.165));
+  const asp = view.w / view.h, A0 = 1.7, v0 = 32 * Math.PI / 180;
+  camera.aspect = asp; camera.fov = (asp < A0 ? 2 * Math.atan(Math.tan(v0 / 2) * A0 / asp) : v0) * 180 / Math.PI; camera.updateProjectionMatrix();
+  renderer && renderer.setSize(view.w, view.h, false);
+  leaderSvg.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`); leaderSvg.setAttribute('width', innerWidth); leaderSvg.setAttribute('height', innerHeight);
+}
 addEventListener('resize', resize); resize();
 
 // ============================================================================ arranque
@@ -708,7 +725,7 @@ addEventListener('resize', resize); resize();
   OLED_STATES.forEach(([, name], i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = name; b.addEventListener('click', () => showState(i, true)); $('#oledStates').append(b); });
   buildMorseDom();
   const h = parseInt(location.hash.slice(1), 10);
-  Object.assign(cam, steps[0].cam, { sx: steps[0].sx ?? 0.18, sy: steps[0].sy ?? 0 });
+  Object.assign(cam, steps[0].cam, { z: steps[0].z ?? 1 });
   go(h >= 1 && h <= steps.length ? h - 1 : 0, true);
   window.__deck = { go, steps, sim, cam, at, gsap, selectComp, resetView, parts: nodes.A.userData.parts, setCam(o) { gsap.killTweensOf(cam); Object.assign(cam, o); }, get cur() { return cur; } };
   frame();
