@@ -128,7 +128,7 @@ h2{font-size:clamp(28px,min(3.5vw,6.6vh),62px)}
 .stats .log{flex-basis:100%;font-family:var(--mono);font-size:clamp(10.5px,.82vw,13px);color:var(--ink);text-transform:none;letter-spacing:0;min-height:2.5em;line-height:1.25}
 
 /* OLED grande */
-.bigoled{position:fixed;z-index:3;left:calc(var(--L) + (100vw - var(--L))*.08);top:calc(var(--topH) + (100vh - var(--topH) - var(--railH))/2 + 14px);transform:translateY(-50%);width:min(calc((100vw - var(--L))*.84),calc((100vh - var(--topH) - var(--railH))*1.55));background:#0b0c0e;padding:clamp(10px,1.4vw,22px);border:1px solid var(--ink)}
+.bigoled{position:fixed;z-index:3;left:calc(var(--L) + (100vw - var(--L))*.09);top:var(--topH);bottom:var(--railH);height:fit-content;margin:auto 0;width:min(calc((100vw - var(--L))*.82),calc((100vh - var(--topH) - var(--railH))*1.4));background:#0b0c0e;padding:clamp(10px,1.2vw,18px);border:1px solid var(--ink)}
 .bigoled canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background:#000}
 .bigoled figcaption{position:absolute;left:0;bottom:100%;margin-bottom:8px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
 .states{display:flex;flex-wrap:wrap;gap:5px;margin-top:clamp(8px,1.8vh,18px);max-width:34em}
@@ -204,7 +204,7 @@ ol.concl li::before{content:counter(c);font-family:var(--disp);font-weight:700;f
   .stage-frame{left:0;bottom:auto;height:40vh;border-left:0}
   .step{top:calc(var(--topH) + 40vh);width:100vw;overflow-y:auto;pointer-events:auto}
   .tag,#leaders{display:none!important}
-  .bigoled{left:4vw;width:92vw;top:calc(var(--topH) + 20vh)}
+  .bigoled{left:4vw;width:92vw;top:var(--topH);bottom:auto;height:fit-content;margin:0;transform:none}
   #compCard{width:calc(100vw - 2*var(--pad))}
   .sg .who span{display:none}
 }
